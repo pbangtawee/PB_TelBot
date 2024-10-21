@@ -1,97 +1,51 @@
-#include "PB_Telbot.h"
+#include "PB_TelBot.h"
 
-PB_TelBot::PB_TelBot(String token, String chat) {
-  botToken = token;
-  chatID = chat;
+PB_TelBot::PB_TelBot(String token, String chat_id) {
+    botToken = token;
+    chatId = chat_id;
+    baseURL = "https://api.telegram.org/bot" + botToken;
 }
 
-void PB_TelBot::connectWiFi(const char* ssid, const char* password) {
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(1000);
-    Serial.print(".");
-  }
-  Serial.println();
-  Serial.println("Connected to WiFi");
-}
-
-void PB_TelBot::sendMessage(String message) {
-  if (WiFi.status() == WL_CONNECTED) {
+bool PB_TelBot::sendMessage(String message) {
+    String url = baseURL + "/sendMessage?chat_id=" + chatId + "&text=" + message;
     HTTPClient http;
-    String serverPath = "https://api.telegram.org/bot" + botToken + "/sendMessage?chat_id=" + chatID + "&text=" + message;
-    http.begin(serverPath.c_str());
-
-    int httpResponseCode = http.GET();
-
-    if (httpResponseCode > 0) {
-      String response = http.getString();
-      Serial.println(response);
-    } else {
-      Serial.print("Error on sending message: ");
-      Serial.println(httpResponseCode);
-    }
+    http.begin(url);
+    int httpCode = http.GET();
     http.end();
-  }
+    return (httpCode == 200);
 }
 
-void PB_TelBot::sendPhoto(String filePath) {
-  if (WiFi.status() == WL_CONNECTED) {
+bool PB_TelBot::sendImage(String filePath) {
+    String url = baseURL + "/sendPhoto";
     HTTPClient http;
-    String serverPath = "https://api.telegram.org/bot" + botToken + "/sendPhoto";
+    http.begin(url);
+    http.addHeader("Content-Type", "multipart/form-data");
+    http.addHeader("chat_id", chatId);
+    http.addHeader("photo", filePath);
     
-    http.begin(serverPath);
-    http.addHeader("Content-Type", "multipart/form-data");
-
-    String boundary = "----WebKitFormBoundary7MA4YWxkTrZu0gW";
-    String body = "--" + boundary + "\r\n";
-    body += "Content-Disposition: form-data; name=\"chat_id\"\r\n\r\n";
-    body += chatID + "\r\n";
-    body += "--" + boundary + "\r\n";
-    body += "Content-Disposition: form-data; name=\"photo\"; filename=\"" + filePath + "\"\r\n";
-    body += "Content-Type: image/jpeg\r\n\r\n";  // เปลี่ยนตามประเภทของไฟล์
-    body += "--" + boundary + "--\r\n";
-
-    http.addHeader("Content-Type", "multipart/form-data; boundary=" + boundary);
-    int httpResponseCode = http.POST(body);
-
-    if (httpResponseCode > 0) {
-      String response = http.getString();
-      Serial.println(response);
-    } else {
-      Serial.print("Error on sending photo: ");
-      Serial.println(httpResponseCode);
-    }
+    int httpCode = http.POST("");
     http.end();
-  }
+    return (httpCode == 200);
 }
 
-void PB_TelBot::sendFile(String filePath) {
-  if (WiFi.status() == WL_CONNECTED) {
+bool PB_TelBot::sendFile(String filePath) {
+    String url = baseURL + "/sendDocument";
     HTTPClient http;
-    String serverPath = "https://api.telegram.org/bot" + botToken + "/sendDocument";
-
-    http.begin(serverPath);
+    http.begin(url);
     http.addHeader("Content-Type", "multipart/form-data");
-
-    String boundary = "----WebKitFormBoundary7MA4YWxkTrZu0gW";
-    String body = "--" + boundary + "\r\n";
-    body += "Content-Disposition: form-data; name=\"chat_id\"\r\n\r\n";
-    body += chatID + "\r\n";
-    body += "--" + boundary + "\r\n";
-    body += "Content-Disposition: form-data; name=\"document\"; filename=\"" + filePath + "\"\r\n";
-    body += "Content-Type: application/pdf\r\n\r\n";  // เปลี่ยนตามประเภทของไฟล์
-    body += "--" + boundary + "--\r\n";
-
-    http.addHeader("Content-Type", "multipart/form-data; boundary=" + boundary);
-    int httpResponseCode = http.POST(body);
-
-    if (httpResponseCode > 0) {
-      String response = http.getString();
-      Serial.println(response);
-    } else {
-      Serial.print("Error on sending document: ");
-      Serial.println(httpResponseCode);
-    }
+    http.addHeader("chat_id", chatId);
+    http.addHeader("document", filePath);
+    
+    int httpCode = http.POST("");
     http.end();
-  }
+    return (httpCode == 200);
+}
+
+bool PB_TelBot::sendFileFromURL(String url) {
+    String apiURL = baseURL + "/sendDocument?chat_id=" + chatId + "&document=" + url;
+    HTTPClient http;
+    http.begin(apiURL);
+    int httpCode = http.GET();
+    http.end();
+    return (httpCode == 200);
 }

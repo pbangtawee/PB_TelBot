@@ -1,19 +1,27 @@
-PB_TelBot
+# PB_TelBot Library
 
-PB_TelBot is a lightweight and easy-to-use Arduino library for interacting with Telegram Bot API. It supports both ESP32 and ESP8266, allowing you to send messages, photos, and files to a Telegram chat without relying on external libraries.
+PB_TelBot is a lightweight library for ESP32 that allows easy interaction with Telegram bots. With this library, you can send messages, images, and files from your ESP32 directly to a Telegram chat. You can also send files from a URL.
 
-Features
-	•	Send messages to Telegram chats
-	•	Send photos from your ESP32/ESP8266 to a Telegram chat
-	•	Send documents and other files
-	•	Simple setup and usage
+## Features
+- Send text messages to a Telegram chat
+- Send images and files stored on ESP32 (e.g., SPIFFS or SD card)
+- Send files from URLs
 
-Supported Devices
-	•	ESP32
-	•	ESP8266
+## Requirements
+- ESP32 board
+- Telegram bot token and chat ID
+- Libraries:
+  - WiFi.h (for WiFi connection)
+  - HTTPClient.h (for sending HTTP requests)
 
-Installation
-Manual Installation
-	1.	Download this repository as a ZIP file.
-	2.	Open the Arduino IDE.
-	3.	Go to Sketch > Include Library > Add .ZIP Library… and select the downloaded ZIP file.
+## Installation
+1. Download the PB_TelBot library from this repository.
+2. Place the library in the `libraries` folder of your Arduino environment:
+    - On Windows: `Documents/Arduino/libraries/`
+    - On macOS: `~/Documents/Arduino/libraries/`
+    - On Linux: `~/Arduino/libraries/`
+3. Restart the Arduino IDE.
+4. Include the library in your sketch by adding:
+
+```cpp
+#include <PB_TelBot.h>
